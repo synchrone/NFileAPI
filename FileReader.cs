@@ -31,7 +31,7 @@ namespace NFileAPI
                 byte[] buf = new byte[(int)s.Length];
                 int bytesRead = 0;
                 int offset = 0;
-
+                s.Seek(0, SeekOrigin.Begin); //rewinding stream to read from the start
                 while ((bytesRead = s.Read(buf, offset, 1024)) > 0)
                 {
                     offset += bytesRead;
@@ -43,7 +43,7 @@ namespace NFileAPI
                 this.readyState = DONE;
                 if (this.onloadend != null)
                 {
-                    this.onloadend.FireAsync(this, new ProgressEvent(s.Length, s.Length));
+                    this.onloadend.FireAsync(this, new ProgressEvent(offset, s.Length));
                 }
                 this.result = buf;
             }

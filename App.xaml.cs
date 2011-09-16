@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Windows;
 using System.Windows.Controls;
@@ -10,6 +9,7 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using System.Windows.Browser;
+using System.IO;
 
 namespace NFileAPI
 {
@@ -18,7 +18,7 @@ namespace NFileAPI
     {
 
         public App()
-        {
+        {   
             this.Startup += this.Application_Startup;
             this.Exit += this.Application_Exit;
             this.UnhandledException += this.Application_UnhandledException;
@@ -29,9 +29,9 @@ namespace NFileAPI
         private void Application_Startup(object sender, StartupEventArgs e)
         {
             this.RootVisual = new MainPage();
-            HtmlPage.RegisterCreateableType("FileReaderSync", typeof(FileReader));
-            HtmlPage.RegisterCreateableType("FileReader", typeof(FileReader));
             HtmlPage.RegisterScriptableObject("input", this.RootVisual);
+            HtmlPage.RegisterCreateableType("FileReader", typeof(FileReader));
+            HtmlPage.RegisterCreateableType("BlobBuilder", typeof(BlobBuilder));
         }
 
         private void Application_Exit(object sender, EventArgs e)
