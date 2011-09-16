@@ -5,19 +5,28 @@ using System.IO;
 namespace NFileAPI
 {
     [ScriptableType]
-    public abstract class Blob
+    public class Blob
     {
-        public virtual ulong  size { get; protected set; }
+        public virtual ulong  size { 
+            get {
+                return (ulong)this.GetStream().Length;
+            }
+        }
         public virtual string type { get; protected set; }
+        protected Blob() { }
 
-        protected abstract Blob _slice (ulong start, ulong end, string contentType = "");
-        
+        internal ConstrainedStreamWrapper stream;
+        protected Blob(Stream stream, ulong relativeStart, ulong span, string contentType = "")
+        {
+            this.stream = new ConstrainedStreamWrapper(stream, (long)relativeStart, (long)span);
+        }
+
         /** <summary>
          * Returns a new Blob object with bytes ranging from the optional start parameter 
          * upto but not including the optional end parameter, and with a type attribute that is
          * the value of the optional contentType parameter
          * </summary> **/
-        public virtual Blob  slice (ulong? start, ulong? end, string contentType = "")
+        public virtual Blob slice (ulong? start, ulong? end, string contentType = "")
         {
             ulong relativeStart;
             if(!start.HasValue){ //nullable primitive is null
@@ -42,9 +51,11 @@ namespace NFileAPI
             }
 
             ulong span = Math.Max(relativeEnd - relativeStart,0);
-            return this._slice(relativeStart, span, contentType);
+            return new Blob(this.GetStream().underlyingStream, relativeStart, span, contentType);
         }
 
-        internal abstract ConstrainedStreamWrapper GetStream();
+        internal virtual ConstrainedStreamWrapper GetStream() {
+            return this.stream;
+        }
     }
 }
