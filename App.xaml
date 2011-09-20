@@ -1,8 +1,8 @@
 ﻿<Application xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
              x:Class="NFileAPI.App"
-             >
+>
     <Application.Resources>
-        
+        <local:Resources xmlns:local ="clr-namespace:NFileAPI.Resources" x:Key="Resources" />
     </Application.Resources>
 </Application>
