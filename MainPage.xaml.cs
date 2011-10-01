@@ -32,7 +32,16 @@ namespace NFileAPI
         [ScriptableMember]
         public FileList files {
             get {
-                return new FileList(this.dialog.Files.ToList());
+                List<System.IO.FileInfo> list;
+                try
+                {
+                    list = this.dialog.Files.ToList();
+                }
+                catch 
+                {
+                    list = new List<System.IO.FileInfo>(); 
+                }
+                return new FileList(list);
             }
         }
     }

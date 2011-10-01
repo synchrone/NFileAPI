@@ -31,6 +31,24 @@ namespace NFileAPI
             HtmlPage.RegisterScriptableObject("input", this.RootVisual);
             HtmlPage.RegisterCreateableType("FileReader", typeof(FileReader));
             HtmlPage.RegisterCreateableType("BlobBuilder", typeof(BlobBuilder));
+
+            foreach (ScriptObject property in HtmlPage.Plugin.Children) {
+                if (property.GetProperty("name") == null || property.GetProperty("value") == null
+                 || property.GetProperty("name").ToString() != "onStartup"
+                ) { continue; }
+
+                string handlerFuncName = property.GetProperty("value").ToString();
+                
+                try
+                {
+                    HtmlPage.Window.Eval(String.Format("{0}();", handlerFuncName));
+                }
+                catch
+                {
+                    //don't give a damn, it's handler error, not mine
+                }
+            }
+            
         }
 
         private void Application_Exit(object sender, EventArgs e)
