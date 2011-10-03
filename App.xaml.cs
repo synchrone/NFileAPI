@@ -19,10 +19,35 @@ namespace NFileAPI
 
         public App()
         {   
-            this.Startup += this.Application_Startup;
-            this.Exit += this.Application_Exit;
+            this.Startup            += this.Application_Startup;
+            this.Exit               += this.Application_Exit;
             this.UnhandledException += this.Application_UnhandledException;
+
+            foreach (ScriptObject property in HtmlPage.Plugin.Children)
+            {
+                if (property.GetProperty("name") == null || property.GetProperty("value") == null ||
+                    property.GetProperty("name").ToString().Substring(0,2) != "on"
+                ) { continue; }
+
+                string handlerFuncName = property.GetProperty("value").ToString();
+                string eventName = property.GetProperty("name").ToString();
+                jsEventHandlers.Add(eventName, handlerFuncName);
+            }
+
             InitializeComponent();
+        }
+
+        protected static Dictionary<string, string> jsEventHandlers = new Dictionary<string, string>();
+        public static object InvokeJSEventHandler(string name)
+        {
+            try
+            {
+                string handlerFuncName = App.jsEventHandlers[name];
+                return HtmlPage.Window.Eval(String.Format("{0}();", handlerFuncName));
+            }
+            catch{ //don't give a damn, it's either handler function error, or no such key
+            }
+            return null;
         }
 
         private void Application_Startup(object sender, StartupEventArgs e)
@@ -31,24 +56,7 @@ namespace NFileAPI
             HtmlPage.RegisterScriptableObject("input", this.RootVisual);
             HtmlPage.RegisterCreateableType("FileReader", typeof(FileReader));
             HtmlPage.RegisterCreateableType("BlobBuilder", typeof(BlobBuilder));
-
-            foreach (ScriptObject property in HtmlPage.Plugin.Children) {
-                if (property.GetProperty("name") == null || property.GetProperty("value") == null
-                 || property.GetProperty("name").ToString() != "onStartup"
-                ) { continue; }
-
-                string handlerFuncName = property.GetProperty("value").ToString();
-                
-                try
-                {
-                    HtmlPage.Window.Eval(String.Format("{0}();", handlerFuncName));
-                }
-                catch
-                {
-                    //don't give a damn, it's handler error, not mine
-                }
-            }
-            
+            App.InvokeJSEventHandler("onStartup");
         }
 
         private void Application_Exit(object sender, EventArgs e)

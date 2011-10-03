@@ -27,6 +27,7 @@ namespace NFileAPI
         private void btnBrowse_Click(object sender, RoutedEventArgs e)
         {
             dialog.ShowDialog();
+            App.InvokeJSEventHandler("onChange");
         }
 
         [ScriptableMember]

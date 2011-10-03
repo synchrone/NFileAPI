@@ -31,10 +31,23 @@ function NFileAPI() {}
             } ,
             events: {
                 'onLoad': function(){},
-                'onStartup': function(){}
+                'onStartup': function(){},
+                'onChange': function(){
+                    if(hostingEl.dispatchEvent){
+                        var evt = document.createEvent("Event");
+                        evt.initEvent('change',false,false);
+                        hostingEl.dispatchEvent(evt);
+
+                    }else if(hostingEl.fireEvent){
+                        hostingEl.fireEvent('onchange');
+                    }else if(hostingEl.onchange){
+                        hostingEl.onchange.call(hostingEl);
+                    }
+                }
             }
         });
-        Object.defineProperty(hostingEl,'files',{
+        
+        Object.defineProperty(hostingEl,'files', {
             //writable: false,
             //enumerable: true,
             get: function(){ //this is solely for the .files[index] purpose. Could've just returned files if not that
@@ -47,13 +60,16 @@ function NFileAPI() {}
                 return files;
             }
         });
+        
+
         return hostingEl;
     };
     
     $.getInstantiator = function () {
         if(!$.hostingEl){
             $.hostingEl = $.createObj();
-            $.hostingEl.style.display = 'none';
+            $.hostingEl.style.position = 'absolute';
+            $.hostingEl.style.visibility = 'hidden';
             document.getElementsByTagName('body')[0].appendChild($.hostingEl);
             $.waitForSL();
         }
