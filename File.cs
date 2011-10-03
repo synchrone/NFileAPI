@@ -25,5 +25,11 @@ namespace NFileAPI
             }
             return this.stream;
         }
+
+        public HtmlElement HostingElement {
+            get {
+                return HtmlPage.Plugin;
+            }
+        }
     }
 }

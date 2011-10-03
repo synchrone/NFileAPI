@@ -82,13 +82,15 @@ function NFileAPI() {}
             //console.log('createObject type is '+t);
             return t != 'undefined';
         }catch(e){
+            //console.log('Exception checking for createObject avail... '+e)
             return false;
         }
     };
     
-    $.createObject = function(name){
+    $.createObject = function(name,instantiator){
+        instantiator = instantiator || $.getInstantiator();
         try{
-            return $.getInstantiator().Content.services.createObject(name);
+            return instantiator.Content.services.createObject(name);
         }catch(e){
             throw new ReferenceError('Silverlight thingy has not been loaded yet');
         }
@@ -97,16 +99,24 @@ function NFileAPI() {}
     $.waitForSL = function(){
         //console.log('Checking for SL...');
         if(!$.isSLLoaded()){
-            //console.log('Not loaded, waiting...')
+            //console.log('Not loaded, waiting...');
             setTimeout($.waitForSL,100);
             return;
         }
         window.nfaFileReader = function () {
             return $.createObject('FileReader');
         };
-        window.nfaBlobBuilder = function(){
-            return $.createObject('BlobBuilder');
-        };
+        
+        window.nfaBlobBuilder = function(){};
+        (function(fr){
+            fr.readAsArrayBuffer = function(blob){
+                fr.prototype = $.createObject('FileReader',blob.HostingElement);
+                for(var i = 0, ev; ev = fr.eventList; i++){
+                    fr.prototype[ev] = fr[ev];
+                }
+            };
+            fr.eventList = ['onloadstart', 'onprogress', 'onabort', 'onload', 'onloadend'];
+        })(window.nfaFileReader);
     };
     
     $.init = function (config) {

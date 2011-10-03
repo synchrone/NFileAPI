@@ -9,11 +9,24 @@
     <script type="text/javascript">
         window.addEventListener('load',function(){
             NFileAPI.init();
+            document.getElementById('blabla').onchange = function(){
+                var fileReader = new nfaFileReader();
+                fileReader.onloadend = function(){
+                    console.log('Loaded '+this.result);
+                };
+                fileReader.onprogress = function(e){
+                    console.log(e.loaded+'/'+e.total);
+                };
+                fileReader.onerror = function(e) {
+                    console.log('error '+fileReader.error);
+                };
+                fileReader.readAsArrayBuffer(this.files[0]);
+            };
         });
     </script>
 
 </head>
 <body>
-	<input id="blabla" type="file" name="testfile" />
+	<input id="blabla" type="file" name="testfile"/>
 </body>
 </html>
